@@ -1,0 +1,5 @@
+name: cloudguruchallenge-azure-resume
+runtime:
+  name: yaml
+  options:
+    compiler: cue export
