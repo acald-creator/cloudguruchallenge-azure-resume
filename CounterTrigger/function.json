@@ -1,0 +1,36 @@
+{
+  "bindings": [
+    {
+      "type": "cosmosDBTrigger",
+      "name": "documents",
+      "direction": "in",
+      "leaseCollectionName": "leases",
+      "connectionStringSetting": "acaldstorage59084b7e_DOCUMENTDB",
+      "databaseName": "VisitorCounter",
+      "collectionName": "Counter",
+      "createLeaseCollectionIfNotExists": false
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "in",
+      "name": "CosmosInput",
+      "databaseName": "VisitorCounter",
+      "collectionName": "Counter",
+      "connectionStringSetting": "acaldstorage59084b7e_DOCUMENTDB",
+      "id": "countId",
+      "partitionKey": "1",
+      "sqlQuery": "SELECT * FROM c WHERE c.id = \\\"1\\\""
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "out",
+      "name": "CosmosOutput",
+      "databaseName": "VisitorCounter",
+      "collectionName": "Counter",
+      "createIfNotExists": false,
+      "connectionStringSetting": "acaldstorage59084b7e_DOCUMENTDB",
+      "partitionKey": "1",
+      "collectionThroughput": ""
+    }
+  ]
+}

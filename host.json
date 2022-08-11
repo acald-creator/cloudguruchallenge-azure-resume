@@ -14,10 +14,9 @@
   },
   "customHandler": {
     "description": {
-      "defaultExecutablePath": "main",
+      "defaultExecutablePath": "",
       "workingDirectory": "",
       "arguments": []
-    },
-    "enableForwardingHttpRequest": true
+    }
   }
 }
