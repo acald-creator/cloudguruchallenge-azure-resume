@@ -1,4 +1,4 @@
-package backend
+package main
 
 import (
 	"context"
@@ -29,7 +29,7 @@ func main() {
 
 	item := struct {
 		ID           string `json:"id"`
-		CountId      int    `json:"countId"`
+		CountId      int
 		CreationDate string
 	}{
 		ID:           "1",
@@ -58,9 +58,19 @@ func main() {
 		log.Printf("createContainer failed: %s\n", err)
 	}
 
-	err = createItem(client, databaseName, containerName, item.ID, item.CountId)
+	err = createItem(client, databaseName, containerName, item.CountId, item)
 	if err != nil {
-		log.Printf("createItem failed: %d\n", err)
+		log.Printf("createItem failed: %s\n", err)
+	}
+
+	err = readItem(client, databaseName, containerName, item.CountId, item.ID)
+	if err != nil {
+		log.Printf("readItem failed: %s\n", err)
+	}
+
+	err = deleteItem(client, databaseName, containerName, item.CountId, item.ID)
+	if err != nil {
+		log.Printf("deleteItem failed: %s\n", err)
 	}
 }
 
@@ -185,7 +195,7 @@ func createItem(client *azcosmos.Client, databaseName, containerName, partitionK
 	return nil
 }
 
-func readItem(client *azcosmos.Client, databaseName string, containerName string, partitionKey string, countId string) error {
+func readItem(client *azcosmos.Client, databaseName string, containerName string, partitionKey string, countId int) error {
 	//	databaseName = VisitorCounter
 	//	containerName = Counter
 	//	partitionKey = "/countId"
@@ -209,7 +219,7 @@ func readItem(client *azcosmos.Client, databaseName string, containerName string
 
 	itemResponseBody := struct {
 		ID           string `json:"id"`
-		CountId      int    `json:"countId"`
+		CountId      int
 		CreationDate string
 	}{}
 
@@ -222,7 +232,7 @@ func readItem(client *azcosmos.Client, databaseName string, containerName string
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Read item with countid %d\n", itemResponseBody.CountId)
+	fmt.Printf("Read item with countId %s\n", itemResponseBody.CountId)
 	fmt.Printf("%d\n", b)
 
 	log.Printf("Status %d. Item %v read. ActivityId %s. Consuming %v Request Units.\n", itemResponse.RawResponse.StatusCode, pk, itemResponse.ActivityID, itemResponse.RequestCharge)
