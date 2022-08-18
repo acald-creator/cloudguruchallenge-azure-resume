@@ -6,13 +6,15 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
 )
 
-func main() {
+func helloHandler(w http.ResponseWriter, r *http.Request) {
 	endpoint := os.Getenv("AZURE_COSMOS_ENDPOINT")
 	if endpoint == "" {
 		log.Fatal("AZURE_COSMOS_ENDPOINT could not be found")
@@ -29,7 +31,7 @@ func main() {
 
 	item := struct {
 		ID           string `json:"id"`
-		CountId      int
+		CountId      int    `json:"countId"`
 		CreationDate string
 	}{
 		ID:           "1",
@@ -58,20 +60,32 @@ func main() {
 		log.Printf("createContainer failed: %s\n", err)
 	}
 
-	err = createItem(client, databaseName, containerName, item.CountId, item)
+	err = createItem(client, databaseName, containerName, strconv.Itoa(item.CountId), item)
 	if err != nil {
 		log.Printf("createItem failed: %s\n", err)
 	}
 
-	err = readItem(client, databaseName, containerName, item.CountId, item.ID)
+	err = readItem(client, databaseName, containerName, strconv.Itoa(item.CountId), item.ID)
 	if err != nil {
-		log.Printf("readItem failed: %s\n", err)
+		log.Printf("readItem failed: %d\n", err)
 	}
 
-	err = deleteItem(client, databaseName, containerName, item.CountId, item.ID)
-	if err != nil {
-		log.Printf("deleteItem failed: %s\n", err)
+	message := "This HTTP triggered function executed successfully. Pass a name in the query string for a personalized response.\n"
+	name := r.URL.Query().Get("name")
+	if name != "" {
+		message = fmt.Sprintf("Hello, %s. This HTTP triggered function executed successfully.\n", name)
 	}
+	fmt.Fprint(w, message)
+}
+
+func main() {
+	listenAddr := ":8080"
+	if val, ok := os.LookupEnv("FUNCTIONS_CUSTOMHANDLER_PORT"); ok {
+		listenAddr = ":" + val
+	}
+	http.HandleFunc("/CounterTrigger", helloHandler)
+	log.Printf("About to listen on %s. Go to https://127.0.0.1%s/", listenAddr, listenAddr)
+	log.Fatal(http.ListenAndServe(listenAddr, nil))
 }
 
 func createDatabase(client *azcosmos.Client, databaseName string) error {
@@ -195,7 +209,7 @@ func createItem(client *azcosmos.Client, databaseName, containerName, partitionK
 	return nil
 }
 
-func readItem(client *azcosmos.Client, databaseName string, containerName string, partitionKey string, countId int) error {
+func readItem(client *azcosmos.Client, databaseName, containerName, partitionKey, countId string) error {
 	//	databaseName = VisitorCounter
 	//	containerName = Counter
 	//	partitionKey = "/countId"
@@ -219,7 +233,7 @@ func readItem(client *azcosmos.Client, databaseName string, containerName string
 
 	itemResponseBody := struct {
 		ID           string `json:"id"`
-		CountId      int
+		CountId      int    `json:"countId"`
 		CreationDate string
 	}{}
 
@@ -236,33 +250,6 @@ func readItem(client *azcosmos.Client, databaseName string, containerName string
 	fmt.Printf("%d\n", b)
 
 	log.Printf("Status %d. Item %v read. ActivityId %s. Consuming %v Request Units.\n", itemResponse.RawResponse.StatusCode, pk, itemResponse.ActivityID, itemResponse.RequestCharge)
-
-	return nil
-}
-
-func deleteItem(client *azcosmos.Client, databaseName string, containerName string, partitionKey string, countId string) error {
-	//	databaseName = VisitorCounter
-	//	containerName = Counter
-	//	partitionKey = "/countId"
-	//	countId = "1"
-
-	// Create container client
-	containerClient, err := client.NewContainer(databaseName, containerName)
-	if err != nil {
-		return fmt.Errorf("failed to create a container client:: %s", err)
-	}
-	// Specifies the value of the partiton key
-	pk := azcosmos.NewPartitionKeyString(partitionKey)
-
-	// Delete an item
-	ctx := context.TODO()
-
-	res, err := containerClient.DeleteItem(ctx, pk, countId, nil)
-	if err != nil {
-		return err
-	}
-
-	log.Printf("Status %d. Item %v deleted. ActivityId %s. Consuming %v Request Units.\n", res.RawResponse.StatusCode, pk, res.ActivityID, res.RequestCharge)
 
 	return nil
 }

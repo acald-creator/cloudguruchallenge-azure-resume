@@ -1,5 +1,14 @@
 {
   "version": "2.0",
+  "extensions": {
+    "cosmosDB": {
+      "connectionMode": "Gateway",
+      "protocol": "Https",
+      "leaseOptions": {
+        "leasePrefix": "prefix1"
+      }
+    }
+  },
   "logging": {
     "applicationInsights": {
       "samplingSettings": {
@@ -14,7 +23,7 @@
   },
   "customHandler": {
     "description": {
-      "defaultExecutablePath": "",
+      "defaultExecutablePath": "main",
       "workingDirectory": "",
       "arguments": []
     }
