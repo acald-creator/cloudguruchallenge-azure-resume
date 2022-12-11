@@ -10,15 +10,14 @@ function visitorCount() {
 window.onload = visitorCount();
 
 async function main() {
-  const response = await fetch("https://resume.acaldwell.dev/resume.json", {
-    method: "GET"
-  });
-
-  if (response.ok) {
-    let json = await response.json();
-  } else {
-    console.log("HTTP-Error: " + response.status);
-  }
+  fetch('https://resume.acaldwell.dev/resume.json', {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+    },
+  })
+    .then((response) => response.json())
+    .then((response) => console.log(JSON.stringify(response)));
 }
 
 main();
