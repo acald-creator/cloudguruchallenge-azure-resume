@@ -16,15 +16,29 @@ jobs:
   # This workflow contains a single job called "build"
   build-and-deploy:
     # The type of runner that the job will run on
-    runs-on: ubuntu-22.04
-
+    # runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        os:
+          - ubuntu-22.04
+          - macos-latest
+          - windows-latest
+        node_version:
+          - 16
+          - 18
+          - 19
+        architecture:
+          - x64
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 19
+          node-version: ${{ matrix.node_version }}
+          architecture: ${{ matrix.architecture }}
+          cache: "npm"
+          cache-dependency-path: "website/package-lock.json"
       - run: |
           cd website
           npm install
