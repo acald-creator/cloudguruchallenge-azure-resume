@@ -1,0 +1,17 @@
+{
+    "basics": {
+        "name": "Antonette Caldwell",
+        "label": "Associate Security Engineer",
+        "email": "antonette.caldwell@owasp.org",
+        "url": "https://acaldwell.dev",
+        "summary": "Short summary...",
+        "location": {
+            "countryCode": "US",
+        },
+        "profiles": [{
+            "network": "Linkedin",
+            "username": "antonettecaldwell",
+            "url": "https://linkedin.com/in/antonettecaldwell"
+        }]
+    }
+}
