@@ -1,14 +1,5 @@
 {
   "version": "2.0",
-  "extensions": {
-    "cosmosDB": {
-      "connectionMode": "Gateway",
-      "protocol": "Https",
-      "leaseOptions": {
-        "leasePrefix": "prefix1"
-      }
-    }
-  },
   "logging": {
     "applicationInsights": {
       "samplingSettings": {
@@ -19,13 +10,14 @@
   },
   "extensionBundle": {
     "id": "Microsoft.Azure.Functions.ExtensionBundle",
-    "version": "[2.*, 3.0.0)"
+    "version": "[3.*, 4.0.0)"
   },
   "customHandler": {
     "description": {
-      "defaultExecutablePath": "main",
+      "defaultExecutablePath": "handler",
       "workingDirectory": "",
       "arguments": []
-    }
+    },
+    "enableForwardingHttpRequest": true
   }
 }

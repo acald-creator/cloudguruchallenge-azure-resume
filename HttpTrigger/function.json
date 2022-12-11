@@ -1,0 +1,39 @@
+{
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "get",
+        "post"
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "out",
+      "name": "counterDocument",
+      "databaseName": "VisitorCounter",
+      "collectionName": "counterCollection",
+      "partitionKey": "countId",
+      "createIfNotExists": true,
+      "connectionStringSetting": "acaldstorage59084b7e_DOCUMENTDB"
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "in",
+      "name": "inputDocument",
+      "databaseName": "VisitorCounter",
+      "collectionName": "counterCollection",
+      "connectionStringSetting": "acaldstorage59084b7e_DOCUMENTDB",
+      "id": "id",
+      "partitionKey": "countId"
+    }
+  ]
+}

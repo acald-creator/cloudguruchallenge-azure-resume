@@ -27,7 +27,7 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 
 	var databaseName = "VisitorCounter"
 	var containerName = "Counter"
-	var partitionKey = "/countId"
+	// var partitionKey = "/countid"
 
 	item := struct {
 		ID           string `json:"id"`
@@ -50,15 +50,18 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal("Failed to create cosmos db client: ", err)
 	}
 
-	err = createDatabase(client, databaseName)
-	if err != nil {
-		log.Printf("createDatabase failed: %s\n", err)
-	}
+	/*
 
-	err = createContainer(client, databaseName, containerName, partitionKey)
-	if err != nil {
-		log.Printf("createContainer failed: %s\n", err)
-	}
+		err = createDatabase(client, databaseName)
+		if err != nil {
+			log.Printf("createDatabase failed: %s\n", err)
+		}
+
+		err = createContainer(client, databaseName, containerName, partitionKey)
+		if err != nil {
+			log.Printf("createContainer failed: %s\n", err)
+		}
+	*/
 
 	err = createItem(client, databaseName, containerName, strconv.Itoa(item.CountId), item)
 	if err != nil {
@@ -70,12 +73,14 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("readItem failed: %d\n", err)
 	}
 
-	message := "This HTTP triggered function executed successfully. Pass a name in the query string for a personalized response.\n"
-	name := r.URL.Query().Get("name")
-	if name != "" {
-		message = fmt.Sprintf("Hello, %s. This HTTP triggered function executed successfully.\n", name)
-	}
-	fmt.Fprint(w, message)
+	/*
+		message := "This HTTP triggered function executed successfully. Pass a name in the query string for a personalized response.\n"
+		name := r.URL.Query().Get("name")
+		if name != "" {
+			message = fmt.Sprintf("Hello, %s. This HTTP triggered function executed successfully.\n", name)
+		}
+		fmt.Fprint(w, message)
+	*/
 }
 
 func main() {
@@ -83,11 +88,12 @@ func main() {
 	if val, ok := os.LookupEnv("FUNCTIONS_CUSTOMHANDLER_PORT"); ok {
 		listenAddr = ":" + val
 	}
-	http.HandleFunc("/CounterTrigger", helloHandler)
+	http.HandleFunc("/HttpTrigger", helloHandler)
 	log.Printf("About to listen on %s. Go to https://127.0.0.1%s/", listenAddr, listenAddr)
 	log.Fatal(http.ListenAndServe(listenAddr, nil))
 }
 
+/*
 func createDatabase(client *azcosmos.Client, databaseName string) error {
 	//	databaseName := "adventureworks"
 
@@ -115,14 +121,14 @@ func createDatabase(client *azcosmos.Client, databaseName string) error {
 func createContainer(client *azcosmos.Client, databaseName, containerName, partitionKey string) error {
 	//	databaseName = VisitorCounter
 	//	containerName = Counter
-	//	partitionKey = "/countId"
+	// partitionKey = "/countId"
 
-	databaseClient, err := client.NewDatabase(databaseName)
+	databaseClient, err := client.NewDatabase(databaseName) // returns a struct that represents a database
 	if err != nil {
-		return err
+		log.Fatal("Failed to create a database client:", err)
 	}
 
-	// creating a container
+	// Setting container properties
 	containerProperties := azcosmos.ContainerProperties{
 		ID: containerName,
 		PartitionKeyDefinition: azcosmos.PartitionKeyDefinition{
@@ -136,13 +142,18 @@ func createContainer(client *azcosmos.Client, databaseName, containerName, parti
 		return err != nil && errors.As(err, &responseErr) && responseErr.StatusCode == 409
 	}
 
-	// setting options upon container creation
+	// Setting container options
 	throughputProperties := azcosmos.NewManualThroughputProperties(400) //defaults to 400 if not set
 	options := &azcosmos.CreateContainerOptions{
 		ThroughputProperties: &throughputProperties,
 	}
+
 	ctx := context.TODO()
 	containerResponse, err := databaseClient.CreateContainer(ctx, containerProperties, options)
+	if err != nil {
+		log.Fatal(err)
+
+	}
 
 	switch {
 	case errorIs409(err):
@@ -154,11 +165,12 @@ func createContainer(client *azcosmos.Client, databaseName, containerName, parti
 	}
 	return nil
 }
+*/
 
 func createItem(client *azcosmos.Client, databaseName, containerName, partitionKey string, item any) error {
-	//	databaseName = VisitorCounter
-	//	containerName = Counter
-	//	partitionKey = "/countId"
+	// databaseName = VisitorCounter
+	// containerName = Counter
+	// partitionKey = "/countId"
 
 	/*	item = struct {
 			ID           string `json:"id"`
@@ -212,8 +224,8 @@ func createItem(client *azcosmos.Client, databaseName, containerName, partitionK
 func readItem(client *azcosmos.Client, databaseName, containerName, partitionKey, countId string) error {
 	//	databaseName = VisitorCounter
 	//	containerName = Counter
-	//	partitionKey = "/countId"
-	//	countId = "1"
+	partitionKey = "/countId"
+	// countId = "1"
 
 	// Create container client
 	containerClient, err := client.NewContainer(databaseName, containerName)
@@ -233,7 +245,7 @@ func readItem(client *azcosmos.Client, databaseName, containerName, partitionKey
 
 	itemResponseBody := struct {
 		ID           string `json:"id"`
-		CountId      int    `json:"countId"`
+		CountId      string `json:"countId"`
 		CreationDate string
 	}{}
 
@@ -246,8 +258,8 @@ func readItem(client *azcosmos.Client, databaseName, containerName, partitionKey
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Read item with countId %s\n", itemResponseBody.CountId)
-	fmt.Printf("%d\n", b)
+	fmt.Printf("Read item with customerId %s\n", itemResponseBody.CountId)
+	fmt.Printf("%s\n", b)
 
 	log.Printf("Status %d. Item %v read. ActivityId %s. Consuming %v Request Units.\n", itemResponse.RawResponse.StatusCode, pk, itemResponse.ActivityID, itemResponse.RequestCharge)
 
