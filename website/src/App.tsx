@@ -1,26 +1,26 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import useSWR from "swr"
 
-function App() {
+const fetcher = (url) => fetch(url).then((res) => res.json());
+
+export default function App() {
+  const { data, error } = useSWR(
+    "https://resume.acaldwell.dev/resume.json",
+    fetcher
+  );
+
+  if (error) return "An error has occurred.";
+  if (!data) return "Loading...";
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Hello!
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          I'm learning React!
-        </a>
-      </header>
-    </div>
+    <React.Fragment>
+      <div>
+        <h1>{data.basics.name}</h1>
+        <p>{data.basics.label}</p>
+        <p>You are visitor: </p>
+      </div>
+    </React.Fragment>
   );
 }
-
-export default App;
