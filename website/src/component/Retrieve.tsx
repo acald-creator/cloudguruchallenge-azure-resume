@@ -1,4 +1,4 @@
-import React from "react"
+import React, { Suspense } from "react"
 import useSWR from "swr"
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -6,11 +6,12 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 function Retrieve() {
     const { data, error, isLoading } = useSWR(
         "https://resume.acaldwell.dev/resume.json",
-        fetcher
+        fetcher,
+        { suspense: true }
     );
 
-    if (error) return <div>failed to load</div>
-    if (isLoading) return <div>loading...</div>
+    if (error) return <div>Oops! Failed to load.</div>
+    if (isLoading) return <div>Loading...</div>
 
     return (
         <div className="prose container mx-auto">
@@ -23,6 +24,8 @@ function Retrieve() {
 
 export default function Display() {
     return (
-        <Retrieve />
+        <Suspense fallback={<h1>Loading page...</h1>}>
+            <Retrieve />
+        </Suspense>
     )
 }
